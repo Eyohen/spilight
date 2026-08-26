@@ -1,7 +1,9 @@
 import { Routes, Route } from 'react-router-dom'
-import HomePage from './pages/HomePage'
+import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import PricingPage from './pages/PricingPage'
 import PlatformPage from './pages/PlatformPage'
@@ -21,7 +23,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/platform" element={<PlatformPage />} />
       <Route path="/workflow" element={<WorkflowPage />} />
       <Route path="/pricing" element={<PricingPage />} />
@@ -29,6 +31,8 @@ function App() {
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
       <Route path="/signup" element={<PublicOnlyRoute><SignUpPage /></PublicOnlyRoute>} />
+      <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPasswordPage /></PublicOnlyRoute>} />
+      <Route path="/reset-password" element={<PublicOnlyRoute><ResetPasswordPage /></PublicOnlyRoute>} />
       <Route path="/verify-email" element={<PublicOnlyRoute><VerifyEmailPage /></PublicOnlyRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route index element={<DashboardHome />} />

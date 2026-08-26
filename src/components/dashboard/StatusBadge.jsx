@@ -1,13 +1,13 @@
 /* eslint-disable react/prop-types */
 
 const styles = {
-  Live: 'bg-black text-white',
-  Healthy: 'bg-black text-white',
-  Scaling: 'bg-white text-black border border-black/15',
+  Live: 'bg-[#d7ff3e] text-black',
+  Healthy: 'bg-[#d7ff3e] text-black',
+  Scaling: 'bg-[#efffc0] text-black border border-[#b8da36]',
   Building: 'bg-[#f2f2f2] text-black border border-black/10',
   Failed: 'bg-black text-white',
   Paused: 'bg-[#f2f2f2] text-black/54 border border-black/10',
-  Ready: 'bg-black text-white',
+  Ready: 'bg-[#d7ff3e] text-black',
   Preview: 'bg-white text-black border border-black/15',
   Open: 'border border-yellow-200 bg-yellow-100 text-yellow-900',
   Paid: 'border border-green-200 bg-green-100 text-green-800',
