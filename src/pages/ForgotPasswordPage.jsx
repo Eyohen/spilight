@@ -19,6 +19,7 @@ const ForgotPasswordPage = () => {
       setFormState({ loading: false, error: error.message, sent: false });
     }
   };
+  
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#070806] px-5 py-24 text-white sm:px-8">

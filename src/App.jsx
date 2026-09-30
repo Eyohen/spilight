@@ -13,9 +13,12 @@ import PrivacyPage from './pages/PrivacyPage'
 import DashboardLayout from './components/dashboard/DashboardLayout'
 import DashboardHome from './pages/dashboard/DashboardHome'
 import ProjectsPage from './pages/dashboard/ProjectsPage'
+import ServersPage from './pages/dashboard/ServersPage'
+import DatabasePage from './pages/dashboard/DatabasePage'
 import DeploymentsPage from './pages/dashboard/DeploymentsPage'
 import MetricsPage from './pages/dashboard/MetricsPage'
 import BillingPage from './pages/dashboard/BillingPage'
+import ReceiptsPage from './pages/dashboard/ReceiptsPage'
 import DashboardSettingsPage from './pages/dashboard/DashboardSettingsPage'
 import PublicOnlyRoute from './components/PublicOnlyRoute'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -37,9 +40,12 @@ function App() {
       <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route index element={<DashboardHome />} />
         <Route path="projects" element={<ProjectsPage />} />
+        <Route path="servers" element={<ServersPage />} />
+        <Route path="database" element={<DatabasePage />} />
         <Route path="deployments" element={<DeploymentsPage />} />
         <Route path="metrics" element={<MetricsPage />} />
         <Route path="billing" element={<BillingPage />} />
+        <Route path="billing/receipts" element={<ReceiptsPage />} />
         <Route path="settings" element={<DashboardSettingsPage />} />
       </Route>
     </Routes>

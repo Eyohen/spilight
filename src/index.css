@@ -12,6 +12,36 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dashboard theme — dark is the default; this class powers the navbar toggle. */
+.dashboard-light {
+  background: #eef1f6 !important;
+  color: #17181c !important;
+}
+.dashboard-light aside,
+.dashboard-light header {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: #dde1e8 !important;
+}
+.dashboard-light main { background: #f5f7fa !important; }
+.dashboard-light [class*="bg-[#151519]"],
+.dashboard-light [class*="bg-[#17171b]"],
+.dashboard-light [class*="bg-[#18181b]"],
+.dashboard-light [class*="bg-[#18181d]"],
+.dashboard-light [class*="bg-[#1e1e21]"],
+.dashboard-light [class*="bg-[#202023]"],
+.dashboard-light [class*="bg-[#202024]"],
+.dashboard-light [class*="bg-[#222225]"],
+.dashboard-light [class*="bg-[#222226]"] { background: #ffffff !important; }
+.dashboard-light [class*="border-[#292a30]"],
+.dashboard-light [class*="border-[#292a2f]"],
+.dashboard-light [class*="border-[#2e2f35]"],
+.dashboard-light [class*="border-[#303137]"],
+.dashboard-light [class*="border-[#34353b]"],
+.dashboard-light [class*="border-[#37383d]"] { border-color: #dfe3ea !important; }
+.dashboard-light [class*="text-[#f4f4f5]"] { color: #17181c !important; }
+.dashboard-light input,
+.dashboard-light select { color: #17181c; }
+
 @layer base {
   html {
     @apply scroll-smooth;

@@ -1,126 +1,31 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import DeployModal from '../../components/dashboard/DeployModal';
-import MetricCard from '../../components/dashboard/MetricCard';
-import ProjectFormModal from '../../components/dashboard/ProjectFormModal';
-import StatusBadge from '../../components/dashboard/StatusBadge';
+import { Link, useOutletContext } from 'react-router-dom';
 
-const stats = [
-  { label: 'Running services', value: '12', change: '+2 this week' },
-  { label: 'Deployments', value: '148', change: '9 in 24 hours' },
-  { label: 'Avg response', value: '84ms', change: '-12ms from last week' },
-  { label: 'Monthly usage', value: '$428', change: '62% of budget' },
+const stats = [['Projects','4','1 running'],['Servers','2','2 online'],['Databases','2','2 running'],['Amount due','$500','Next invoice 01 Nov 2026']];
+const attention = [
+  ['error','API deployment failed','Build step failed on main · 20 min ago','View deployment'],
+  ['warning','Storage approaching capacity','Production Server · 88% used','View server'],
+  ['success','Invoice INV-002 awaiting payment','$500 · Due today','Pay invoice'],
+  ['info','SSL certificate expires soon','api.spilight.com · 8 days left','Review domain'],
 ];
+const usage = [['CPU',72,'green'],['Memory',56,'green'],['Storage',88,'red'],['Bandwidth',46,'green']];
+const deployments = [['my-website','main','Successful','6 min ago'],['api-gateway','main','Failed','20 min ago'],['admin-dashboard','develop','Building','now']];
 
-const services = [
-  { name: 'api-gateway', project: 'core', status: 'Live', region: 'fra1', deploy: '8m ago' },
-  { name: 'web-dashboard', project: 'console', status: 'Live', region: 'iad1', deploy: '27m ago' },
-  { name: 'billing-worker', project: 'payments', status: 'Scaling', region: 'fra1', deploy: '1h ago' },
-  { name: 'postgres-main', project: 'core', status: 'Healthy', region: 'fra1', deploy: '2d ago' },
-];
+export default function DashboardHome(){
+  const {firstName='Simi',workspace='Acme Technologies',openCreate}=useOutletContext()||{};
+  return <div className="mx-auto max-w-[1440px] space-y-5">
+    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center"><div><h1 className="text-2xl font-semibold tracking-[-.03em] md:text-3xl">Welcome back, {firstName}</h1><p className="mt-1 text-sm text-[#777780]">{workspace} · Scale plan</p></div><div className="flex gap-2"><button onClick={openCreate} className="rounded-xl bg-[#4c8dff] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#6aa1ff]">＋ Create new</button><Link to="/dashboard/deployments" className="rounded-xl border border-[#303137] px-4 py-2.5 text-xs font-semibold text-[#a4a4ad] hover:bg-white/[.04]">View deployments</Link></div></div>
 
-const activity = [
-  'api-gateway promoted release d4f91c2 to production',
-  'billing-worker scaled from 2 to 4 replicas',
-  'console preview deployed for branch redesign-auth',
-  'postgres-main completed automated backup',
-];
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{stats.map(([label,value,detail])=><article key={label} className="rounded-2xl border border-[#292a30] bg-[#151519] p-5"><p className="text-[10px] font-semibold uppercase tracking-[.13em] text-[#777780]">{label}</p><p className="mt-3 text-3xl font-semibold tracking-[-.04em]">{value}</p><p className="mt-1 text-xs text-[#777780]">{detail}</p></article>)}</section>
 
-const DashboardHome = () => {
-  const [projectModalOpen, setProjectModalOpen] = useState(false);
-  const [deployModalOpen, setDeployModalOpen] = useState(false);
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,.7fr)]">
+      <section className="rounded-2xl border border-[#292a30] bg-[#151519] p-5"><div className="flex items-center justify-between"><h2 className="text-sm font-semibold">Needs your attention</h2><span className="text-[10px] font-semibold uppercase tracking-[.13em] text-[#777780]">4 items</span></div><div className="mt-4 space-y-2">{attention.map(([tone,title,detail,action])=><div key={title} className="flex items-center gap-3 rounded-xl border border-[#303137] bg-[#17171b] p-3"><span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl text-sm ${tone==='error'?'bg-[#281b20] text-[#dc565f]':tone==='warning'?'bg-[#282319] text-[#d2a62d]':tone==='success'?'bg-[#173226] text-[#3dcc87]':'bg-[#1a252c] text-[#5ba6ce]'}`}>{tone==='error'?'×':tone==='warning'?'▲':tone==='success'?'✓':'i'}</span><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{title}</p><p className="mt-0.5 truncate text-xs text-[#7f7f88]">{detail}</p></div><button className="hidden text-xs font-semibold text-[#65a0ff] hover:text-[#83b3ff] sm:block">{action} →</button></div>)}</div></section>
 
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-black/42">Overview</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-black">Production dashboard</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-black/54">
-            Monitor service health, recent releases, infrastructure usage, and deployment activity across your workspace.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => setProjectModalOpen(true)}
-            className="inline-flex h-10 items-center justify-center rounded-md border border-black/10 bg-white px-4 text-sm font-bold text-black transition-colors hover:bg-black hover:text-white"
-          >
-            New project
-          </button>
-          <button
-            type="button"
-            onClick={() => setDeployModalOpen(true)}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-black px-4 text-sm font-bold text-white transition-colors hover:bg-black/80"
-          >
-            Deploy
-          </button>
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => (
-          <MetricCard key={stat.label} label={stat.label} value={stat.value} detail={stat.change} />
-        ))}
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
-        <section className="rounded-lg border border-black/10 bg-white">
-          <div className="flex items-center justify-between border-b border-black/10 p-5">
-            <div>
-              <h2 className="text-lg font-semibold tracking-[-0.03em]">Services</h2>
-              <p className="mt-1 text-sm text-black/46">Current production runtime state</p>
-            </div>
-            <Link to="/dashboard/projects" className="text-sm font-bold text-black/58 hover:text-black">View all</Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[680px] text-left">
-              <thead className="border-b border-black/10 bg-[#fafafa] text-xs uppercase tracking-[0.12em] text-black/40">
-                <tr>
-                  <th className="px-5 py-3 font-bold">Service</th>
-                  <th className="px-5 py-3 font-bold">Project</th>
-                  <th className="px-5 py-3 font-bold">Status</th>
-                  <th className="px-5 py-3 font-bold">Region</th>
-                  <th className="px-5 py-3 font-bold">Last deploy</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/10">
-                {services.map((service) => (
-                  <tr key={service.name}>
-                    <td className="px-5 py-4 font-mono text-sm">{service.name}</td>
-                    <td className="px-5 py-4 text-sm text-black/58">{service.project}</td>
-                    <td className="px-5 py-4">
-                      <StatusBadge status={service.status} />
-                    </td>
-                    <td className="px-5 py-4 text-sm text-black/58">{service.region}</td>
-                    <td className="px-5 py-4 text-sm text-black/58">{service.deploy}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-black/10 bg-white">
-          <div className="border-b border-black/10 p-5">
-            <h2 className="text-lg font-semibold tracking-[-0.03em]">Activity</h2>
-            <p className="mt-1 text-sm text-black/46">Latest workspace events</p>
-          </div>
-          <div className="space-y-4 p-5">
-            {activity.map((item) => (
-              <div key={item} className="flex gap-3">
-                <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-black" />
-                <p className="text-sm leading-6 text-black/62">{item}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <ProjectFormModal open={projectModalOpen} onClose={() => setProjectModalOpen(false)} />
-      <DeployModal open={deployModalOpen} onClose={() => setDeployModalOpen(false)} />
+      <section className="rounded-2xl border border-[#292a30] bg-[#151519] p-5"><div className="flex items-center justify-between"><h2 className="text-sm font-semibold">Resource usage</h2><span className="text-[10px] text-[#777780]">LIVE</span></div><div className="mt-5 space-y-5">{usage.map(([label,value,tone])=><div key={label}><div className="mb-2 flex justify-between text-[10px] font-semibold uppercase tracking-[.1em] text-[#7c7c85]"><span>{label}</span><span>{value}%</span></div><div className="h-1.5 overflow-hidden rounded-full bg-[#29292e]"><div className={`h-full rounded-full ${tone==='red'?'bg-[#f15a5a]':'bg-[#3dcc87]'}`} style={{width:`${value}%`}}/></div></div>)}</div></section>
     </div>
-  );
-};
 
-export default DashboardHome;
+    <div className="grid gap-4 lg:grid-cols-[1.4fr_.8fr]">
+      <section className="overflow-hidden rounded-2xl border border-[#292a30] bg-[#151519]"><div className="flex items-center justify-between border-b border-[#292a30] p-5"><h2 className="text-sm font-semibold">Recent deployments</h2><Link to="/dashboard/deployments" className="text-xs font-semibold text-[#65a0ff]">View all →</Link></div><div>{deployments.map(([name,branch,status,time])=><div key={name} className="flex items-center gap-3 border-b border-[#25262b] px-5 py-4 last:border-0"><span className={`h-2 w-2 rounded-full ${status==='Failed'?'bg-[#e4555e]':status==='Building'?'bg-[#d2a62d]':'bg-[#3dcc87]'}`}/><div className="min-w-0 flex-1"><p className="text-sm font-semibold">{name}</p><p className="mt-0.5 text-xs text-[#73737c]">{branch} · Production</p></div><span className="text-xs text-[#8b8b94]">{status}</span><span className="hidden w-20 text-right text-xs text-[#606069] sm:block">{time}</span></div>)}</div></section>
+      <section className="rounded-2xl border border-[#292a30] bg-[#151519] p-5"><p className="text-[10px] font-semibold uppercase tracking-[.13em] text-[#777780]">Current plan</p><div className="mt-3 flex items-end justify-between"><div><p className="text-2xl font-semibold">Scale</p><p className="mt-1 text-xs text-[#777780]">Renews 01 Nov 2026</p></div><span className="rounded-full bg-[#17392c] px-2.5 py-1 text-[10px] font-semibold text-[#3dcc87]">ACTIVE</span></div><div className="my-5 border-t border-[#292a30]"/><div className="flex items-center justify-between"><div><p className="text-xs text-[#777780]">Amount due</p><p className="mt-1 text-xl font-semibold">$500</p></div><Link to="/dashboard/billing" className="rounded-lg bg-[#4c8dff] px-3 py-2 text-xs font-semibold text-white hover:bg-[#6aa1ff]">Pay now</Link></div></section>
+    </div>
+  </div>;
+}

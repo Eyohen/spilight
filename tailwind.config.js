@@ -48,6 +48,11 @@ export default {
           light: '#34d399',
           dark: '#059669',
         },
+        babyblue: {
+          DEFAULT: '#5EB6E8',
+          light: '#DCF1FB',
+          dark: '#2E86B8',
+        },
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',

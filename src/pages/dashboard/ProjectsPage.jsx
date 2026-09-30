@@ -1,97 +1,16 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react';
-import ProjectFormModal from '../../components/dashboard/ProjectFormModal';
-import StatusBadge from '../../components/dashboard/StatusBadge';
+import { useOutletContext } from 'react-router-dom';
 
-const projects = [
-  { name: 'core-platform', services: 5, region: 'fra1', spend: '$218', status: 'Live', updated: '8 minutes ago' },
-  { name: 'customer-console', services: 3, region: 'iad1', spend: '$94', status: 'Live', updated: '27 minutes ago' },
-  { name: 'payments', services: 2, region: 'fra1', spend: '$76', status: 'Scaling', updated: '1 hour ago' },
-  { name: 'observability', services: 2, region: 'lhr1', spend: '$40', status: 'Healthy', updated: '2 hours ago' },
-];
+const Resource=({type,item})=><div className={`rounded-xl border p-4 ${item?'border-[#303137] bg-[#18181c]':'border-dashed border-[#383941] bg-transparent'}`}><div className="flex items-start gap-3"><span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${type==='Server'?'bg-[#172a4a] text-[#65a0ff]':'bg-[#2b2146] text-[#a990ff]'}`}>{type==='Server'?<svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 5h16v5H4zM4 14h16v5H4z"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>:<svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>}</span><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><p className="text-[10px] font-semibold uppercase tracking-[.12em] text-[#777780]">{type}</p>{item&&<span className={`text-[10px] font-medium ${item.status==='Provisioning'?'text-[#d6a923]':'text-[#3dcc87]'}`}>● {item.status}</span>}</div>{item?<><p className="mt-2 truncate text-sm font-semibold">{item.name}</p><p className="mt-1 truncate text-xs text-[#777780]">{item.detail}</p></>:<><p className="mt-2 text-sm font-medium text-[#8a8a93]">No {type.toLowerCase()} yet</p><p className="mt-1 text-xs text-[#66666f]">Add one when this project needs it.</p></>}</div></div></div>;
 
-const environments = ['Production', 'Staging', 'Preview'];
-
-const ProjectsPage = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-black/42">Projects</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-black">Project control</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-black/54">
-            Organize services, environments, regions, and spend around each product boundary.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-black px-4 text-sm font-bold text-white transition-colors hover:bg-black/80"
-        >
-          New project
-        </button>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        {environments.map((environment) => (
-          <article key={environment} className="rounded-lg border border-black/10 bg-white p-5">
-            <p className="text-sm font-semibold">{environment}</p>
-            <p className="mt-2 text-sm leading-6 text-black/48">
-              {environment === 'Production' ? '4 live projects with protected promotion rules.' : `${environment} workloads inherit production defaults.`}
-            </p>
-          </article>
-        ))}
-      </div>
-
-      <section className="rounded-lg border border-black/10 bg-white">
-        <div className="flex items-center justify-between border-b border-black/10 p-5">
-          <div>
-            <h2 className="text-lg font-semibold tracking-[-0.03em]">Projects</h2>
-            <p className="mt-1 text-sm text-black/46">Workspace projects and operational state</p>
-          </div>
-          <input
-            placeholder="Filter projects"
-            className="hidden h-10 rounded-md border border-black/10 px-3 text-sm outline-none focus:border-black sm:block"
-          />
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left">
-            <thead className="border-b border-black/10 bg-[#fafafa] text-xs uppercase tracking-[0.12em] text-black/40">
-              <tr>
-                <th className="px-5 py-3 font-bold">Name</th>
-                <th className="px-5 py-3 font-bold">Services</th>
-                <th className="px-5 py-3 font-bold">Region</th>
-                <th className="px-5 py-3 font-bold">Spend</th>
-                <th className="px-5 py-3 font-bold">Status</th>
-                <th className="px-5 py-3 font-bold">Updated</th>
-                <th className="px-5 py-3 font-bold" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/10">
-              {projects.map((project) => (
-                <tr key={project.name}>
-                  <td className="px-5 py-4 font-mono text-sm">{project.name}</td>
-                  <td className="px-5 py-4 text-sm text-black/58">{project.services}</td>
-                  <td className="px-5 py-4 text-sm text-black/58">{project.region}</td>
-                  <td className="px-5 py-4 text-sm text-black/58">{project.spend}</td>
-                  <td className="px-5 py-4"><StatusBadge status={project.status} /></td>
-                  <td className="px-5 py-4 text-sm text-black/58">{project.updated}</td>
-                  <td className="px-5 py-4 text-right">
-                    <button className="rounded-md border border-black/10 px-3 py-1.5 text-xs font-bold transition-colors hover:bg-black hover:text-white">
-                      Open
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <ProjectFormModal open={modalOpen} onClose={() => setModalOpen(false)} />
-    </div>
-  );
-};
-
-export default ProjectsPage;
+export default function ProjectsPage(){
+  const {projects=[],renameProject,openCreate}=useOutletContext()||{};
+  const [editing,setEditing]=useState(null),[name,setName]=useState('');
+  const start=project=>{setEditing(project.id);setName(project.name)};
+  const save=id=>{if(name.trim())renameProject?.(id,name.trim());setEditing(null)};
+  return <div className="mx-auto max-w-[1440px]">
+    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><h1 className="text-2xl font-semibold tracking-[-.03em]">Projects</h1><p className="mt-1.5 text-sm text-[#777780]">Servers and databases stay grouped by product, so infrastructure is easier to understand.</p></div><button onClick={openCreate} className="self-start rounded-lg bg-[#4c8dff] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#6aa1ff] sm:self-auto">＋ New resource</button></div>
+    <div className="mt-6 space-y-4">{projects.map(project=><article key={project.id} className="rounded-2xl border border-[#303137] bg-[#151519] p-5"><div className="flex flex-col justify-between gap-3 border-b border-[#292a30] pb-4 sm:flex-row sm:items-center"><div>{editing===project.id?<form onSubmit={e=>{e.preventDefault();save(project.id)}} className="flex items-center gap-2"><input autoFocus value={name} onChange={e=>setName(e.target.value)} className="rounded-lg border border-[#4c8dff] bg-[#202024] px-3 py-1.5 font-mono text-sm outline-none"/><button className="text-xs font-semibold text-[#65a0ff]">Save</button><button type="button" onClick={()=>setEditing(null)} className="text-xs text-[#777780]">Cancel</button></form>:<div className="flex items-center gap-2"><h2 className="font-mono text-base font-semibold">{project.name}</h2><button onClick={()=>start(project)} className="rounded-md p-1 text-[#66666f] hover:bg-white/[.05] hover:text-[#65a0ff]" aria-label="Rename project"><svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="m14 5 5 5M4 20l4-1 11-11a2.1 2.1 0 0 0-3-3L5 16l-1 4Z"/></svg></button></div>}<p className="mt-1 text-xs text-[#696972]">Created {project.created} · automatically grouped</p></div><span className="self-start rounded-full bg-[#172a4a] px-2.5 py-1 text-[10px] font-semibold text-[#65a0ff]">PROJECT</span></div><div className="mt-4 grid gap-3 md:grid-cols-2"><Resource type="Server" item={project.server}/><Resource type="Database" item={project.database}/></div></article>)}</div>
+  </div>;
+}

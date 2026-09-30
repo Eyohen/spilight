@@ -3,9 +3,10 @@
 const styles = {
   Live: 'bg-[#d7ff3e] text-black',
   Healthy: 'bg-[#d7ff3e] text-black',
+  Successful: 'bg-babyblue-light text-babyblue-dark',
   Scaling: 'bg-[#efffc0] text-black border border-[#b8da36]',
-  Building: 'bg-[#f2f2f2] text-black border border-black/10',
-  Failed: 'bg-black text-white',
+  Building: 'bg-[#dcf1fb] text-[#2e7d99]',
+  Failed: 'bg-[#fbe4e1] text-[#c1503e]',
   Paused: 'bg-[#f2f2f2] text-black/54 border border-black/10',
   Ready: 'bg-[#d7ff3e] text-black',
   Preview: 'bg-white text-black border border-black/15',
@@ -49,8 +50,11 @@ const icons = {
   ),
 };
 
+const dotStatuses = new Set(['Successful', 'Failed', 'Building']);
+
 const StatusBadge = ({ status }) => (
   <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${styles[status] || styles.Ready}`}>
+    {dotStatuses.has(status) && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
     {icons[status]}
     {status}
   </span>
