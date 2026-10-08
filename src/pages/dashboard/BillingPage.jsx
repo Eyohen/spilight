@@ -1,218 +1,38 @@
-import { useEffect, useState } from 'react';
-import MetricCard from '../../components/dashboard/MetricCard';
-import StatusBadge from '../../components/dashboard/StatusBadge';
-import { api } from '../../lib/api';
+/* eslint-disable react/prop-types */
+import { useState } from 'react';
+import { Link, useOutletContext } from 'react-router-dom';
+import { billingData, formatUsd, statusTone } from './billingData';
 
-const getErrorMessage = (error, fallback) =>
-  error.response?.data?.message || error.message || fallback;
+const tabs = ['Overview', 'Usage', 'Invoices'];
+const card = 'rounded-xl border border-[#303137] bg-[#151519]';
 
-const formatMoney = (amount, currency = 'USD') =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(Number(amount || 0));
-
-const formatDate = (date) => {
-  if (!date) return 'No due date';
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(`${date}T00:00:00`));
+const Status = ({ status }) => {
+  const tone = statusTone[status] || { label: status, color: '#92929b' };
+  return <span className="flex items-center gap-2 text-xs font-semibold" style={{ color: tone.color }}><span className="h-2 w-2 rounded-full" style={{ backgroundColor: tone.color }} />{tone.label}</span>;
 };
 
-const formatStatus = (status) =>
-  status ? status.charAt(0).toUpperCase() + status.slice(1).replaceAll('_', ' ') : '';
-
-const BillingPage = () => {
-  const [billing, setBilling] = useState({
-    stats: {
-      currentSpend: 0,
-      paidTotal: 0,
-      openTotal: 0,
-      openInvoiceCount: 0,
-      paidInvoiceCount: 0,
-      invoiceCount: 0,
-      nextInvoice: null,
-    },
-    invoices: [],
-  });
-  const [billingState, setBillingState] = useState({
-    loading: true,
-    error: '',
-  });
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadBilling = async () => {
-      setBillingState({ loading: true, error: '' });
-
-      try {
-        const response = await api.get('/billing/summary');
-        if (isMounted) {
-          setBilling(response.data.data);
-          setBillingState({ loading: false, error: '' });
-        }
-      } catch (error) {
-        if (isMounted) {
-          setBillingState({
-            loading: false,
-            error: getErrorMessage(error, 'Unable to load billing information'),
-          });
-        }
-      }
-    };
-
-    loadBilling();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const nextInvoice = billing.stats.nextInvoice;
-  const billingStats = [
-    {
-      label: 'Current spend',
-      value: billingState.loading ? '...' : formatMoney(billing.stats.currentSpend),
-      detail: `${billing.stats.invoiceCount} total invoices`,
-    },
-    {
-      label: 'Paid',
-      value: billingState.loading ? '...' : formatMoney(billing.stats.paidTotal),
-      detail: `${billing.stats.paidInvoiceCount} paid invoices`,
-    },
-    {
-      label: 'Open balance',
-      value: billingState.loading ? '...' : formatMoney(billing.stats.openTotal),
-      detail: `${billing.stats.openInvoiceCount} invoices awaiting payment`,
-    },
-    {
-      label: 'Next invoice',
-      value: billingState.loading ? '...' : nextInvoice ? formatMoney(nextInvoice.amount, nextInvoice.currency) : '$0.00',
-      detail: nextInvoice ? `Due ${formatDate(nextInvoice.dueDate)}` : 'No open invoices',
-    },
-  ];
-
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-black/42">Billing</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-black">Plan and usage</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-black/54">
-            Review workspace spend, invoices, payment method, usage charges, and monthly budget controls.
-          </p>
-        </div>
-        <button className="h-10 w-fit rounded-md bg-black px-4 text-sm font-bold text-white transition-colors hover:bg-black/80">
-          Update payment
-        </button>
-      </div>
-
-      {billingState.error && (
-        <div className="rounded-lg border border-black/10 bg-white p-4 text-sm font-medium text-black">
-          {billingState.error}
-        </div>
-      )}
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {billingStats.map((stat) => (
-          <MetricCard key={stat.label} label={stat.label} value={stat.value} detail={stat.detail} />
-        ))}
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-        <section className="rounded-lg border border-black/10 bg-white">
-          <div className="border-b border-black/10 p-5">
-            <h2 className="text-lg font-semibold tracking-[-0.03em]">Open invoices</h2>
-            <p className="mt-1 text-sm text-black/46">Invoices created by Spilight admin for this account</p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left">
-              <thead className="border-b border-black/10 bg-[#fafafa] text-xs uppercase tracking-[0.12em] text-black/40">
-                <tr>
-                  <th className="px-5 py-3 font-bold">Invoice</th>
-                  <th className="px-5 py-3 font-bold">Due date</th>
-                  <th className="px-5 py-3 font-bold">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/10">
-                {billing.invoices.filter((invoice) => ['open', 'overdue'].includes(invoice.status)).map((invoice) => (
-                  <tr key={invoice.id}>
-                    <td className="px-5 py-4 text-sm font-medium">
-                      <p>{invoice.invoiceNumber}</p>
-                      <p className="mt-1 text-xs text-black/42">{invoice.title}</p>
-                    </td>
-                    <td className="px-5 py-4 text-sm text-black/58">{formatDate(invoice.dueDate)}</td>
-                    <td className="px-5 py-4 text-sm text-black/58">{formatMoney(invoice.amount, invoice.currency)}</td>
-                  </tr>
-                ))}
-                {!billingState.loading && billing.invoices.filter((invoice) => ['open', 'overdue'].includes(invoice.status)).length === 0 && (
-                  <tr>
-                    <td className="px-5 py-5 text-sm text-black/50" colSpan={3}>No open invoices.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-black/10 bg-white p-5">
-          <h2 className="text-lg font-semibold tracking-[-0.03em]">Payment method</h2>
-          <div className="mt-5 rounded-lg border border-black/10 bg-[#f7f7f7] p-4">
-            <p className="text-sm font-semibold">Visa ending in 4242</p>
-            <p className="mt-1 text-xs text-black/46">Expires 08/29</p>
-          </div>
-          <div className="mt-5 rounded-lg border border-black/10 p-4">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-black/38">Budget alert</p>
-            <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">$700</p>
-            <p className="mt-1 text-sm text-black/50">Notify team at 80% usage.</p>
-          </div>
-        </section>
-      </div>
-
-      <section className="rounded-lg border border-black/10 bg-white">
-        <div className="border-b border-black/10 p-5">
-          <h2 className="text-lg font-semibold tracking-[-0.03em]">Invoices</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left">
-            <thead className="border-b border-black/10 bg-[#fafafa] text-xs uppercase tracking-[0.12em] text-black/40">
-              <tr>
-                <th className="px-5 py-3 font-bold">Status</th>
-                <th className="px-5 py-3 font-bold">Invoice</th>
-                <th className="px-5 py-3 font-bold">Issued</th>
-                <th className="px-5 py-3 font-bold">Due</th>
-                <th className="px-5 py-3 font-bold">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/10">
-              {billing.invoices.map((invoice) => (
-                <tr key={invoice.id}>
-                  <td className="px-5 py-4">
-                    <StatusBadge status={formatStatus(invoice.status)} />
-                  </td>
-                  <td className="px-5 py-4 text-sm">
-                    <p className="font-mono">{invoice.invoiceNumber}</p>
-                    <p className="mt-1 text-xs text-black/42">{invoice.title}</p>
-                  </td>
-                  <td className="px-5 py-4 text-sm text-black/58">{formatDate(invoice.issuedDate)}</td>
-                  <td className="px-5 py-4 text-sm text-black/58">{formatDate(invoice.dueDate)}</td>
-                  <td className="px-5 py-4 text-sm text-black/58">{formatMoney(invoice.amount, invoice.currency)}</td>
-                </tr>
-              ))}
-              {!billingState.loading && billing.invoices.length === 0 && (
-                <tr>
-                  <td className="px-5 py-5 text-sm text-black/50" colSpan={5}>No invoices have been created for this account yet.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-  );
+const InvoiceRows = ({ compact = false }) => {
+  return <div className="px-5 pb-4">{billingData.invoices.map(invoice => <Link key={invoice.id} to={`/dashboard/billing/invoices/${invoice.id}`} className="group flex flex-col gap-3 border-b border-[#303137] py-4 transition last:border-0 hover:bg-white/[.015] sm:flex-row sm:items-center">
+    <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-4"><span className="font-mono text-xs font-semibold text-[#58baf0]">{invoice.number}</span><span className="mt-1 block text-xs text-[#85858e] sm:mt-0">{invoice.period}</span></div>
+    <div className="flex items-center gap-3 sm:gap-4"><strong className="ml-auto font-mono text-xs text-[#dedee2]">{formatUsd(invoice.amount)}</strong><Status status={invoice.status}/><span role="button" tabIndex={0} onClick={event => { event.preventDefault(); event.stopPropagation(); }} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); } }} className={`${compact ? 'hidden sm:inline-flex' : 'inline-flex'} h-9 items-center rounded-lg border border-[#35363c] px-3 text-xs text-[#92929b] transition hover:bg-white/[.04] hover:text-white`}>↓&nbsp; Download</span></div>
+  </Link>)}</div>;
 };
 
-export default BillingPage;
+const BudgetCard = () => {
+  const used = Math.round((billingData.currentUsage / billingData.monthlyBudget) * 100);
+  return <section className={`${card} p-5`}><div className="flex items-center justify-between"><h2 className="text-sm font-semibold">Budget guardrail</h2><span className="font-mono text-[9px] uppercase tracking-[.1em] text-[#777780]">{used}% used</span></div><p className="mt-5 text-sm text-[#85858e]">Monthly workspace budget</p><div className="mt-2 flex items-end justify-between"><strong className="text-2xl tracking-[-.03em]">{formatUsd(billingData.currentUsage)}</strong><span className="font-mono text-xs text-[#777780]">of {formatUsd(billingData.monthlyBudget)}</span></div><div className="relative mt-5 h-2 overflow-hidden rounded-full bg-[#29292f]"><div className="h-full rounded-full bg-[#58baf0]" style={{ width: `${used}%` }}/><span className="absolute inset-y-[-2px] left-[78%] w-0.5 bg-[#e0b527]"/></div><div className="mt-2 flex justify-between font-mono text-[9px] text-[#696972]"><span>$0</span><span>Budget {formatUsd(billingData.monthlyBudget)}</span></div><div className="mt-6 grid grid-cols-2 gap-3"><div className="rounded-lg border border-[#303137] p-3"><p className="font-mono text-[9px] uppercase text-[#777780]">Remaining</p><strong className="mt-2 block text-sm">{formatUsd(billingData.monthlyBudget - billingData.currentUsage)}</strong></div><div className="rounded-lg border border-[#303137] p-3"><p className="font-mono text-[9px] uppercase text-[#777780]">Projected</p><strong className="mt-2 block text-sm">{formatUsd(billingData.estimatedTotal)}</strong></div></div><p className="mt-5 text-xs leading-5 text-[#777780]">The marker shows projected month-end spend. You are currently within budget.</p></section>;
+};
+
+const ProjectUsage = ({ bars = false }) => <div>{billingData.projects.map(project => <div key={project.name} className="border-b border-[#303137] py-3 last:border-0"><div className="flex items-center justify-between gap-4"><div className="flex items-center gap-3">{!bars && <span className="grid h-8 w-8 place-items-center rounded-lg border border-[#303137] font-mono text-xs text-[#58baf0]">{project.name[0]}</span>}<div><p className="text-sm font-semibold">{project.name}</p><p className="mt-0.5 text-[10px] text-[#777780]">{project.environment}{!bars && ` · ${project.percent}% of usage`}</p></div></div><strong className="font-mono text-xs">{formatUsd(project.amount)}</strong></div>{bars && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#29292f]"><div className="h-full rounded-full bg-[#58baf0]" style={{ width: `${project.percent * 2.8}%` }}/></div>}</div>)}</div>;
+
+const Overview = ({ setTab }) => <div className="space-y-4"><div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]"><section className={`${card} flex min-h-36 items-start justify-between gap-4 p-5`}><div><p className="font-mono text-[9px] uppercase tracking-[.12em] text-[#58baf0]">Current plan</p><h2 className="mt-3 text-2xl font-semibold uppercase">{billingData.plan.name} <span className="ml-2 text-xs font-normal normal-case text-[#777780]">{formatUsd(billingData.plan.price)} / month</span></h2><p className="mt-3 text-xs text-[#777780]">Monthly billing · Card •••• {billingData.plan.card}</p></div><button className="rounded-lg border border-[#35363c] px-3 py-2 text-xs text-[#a0a0a8]">Manage plan</button></section><section className={`${card} grid min-h-36 grid-cols-2 p-5`}><div className="border-r border-[#303137] pr-4"><p className="font-mono text-[9px] uppercase text-[#777780]">Amount due</p><strong className="mt-3 block text-2xl">{formatUsd(520)}</strong><div className="mt-4"><Status status="pending"/></div></div><div className="pl-5"><p className="font-mono text-[9px] uppercase text-[#777780]">Next invoice</p><strong className="mt-3 block text-lg">01 Nov 2026</strong><p className="mt-3 text-xs text-[#777780]">Projected {formatUsd(billingData.estimatedTotal)}</p></div></section></div><div className="grid gap-4 lg:grid-cols-[1.3fr_.9fr]"><section className={`${card} p-5`}><div className="flex justify-between"><h2 className="text-sm font-semibold">Usage this cycle</h2><button onClick={() => setTab('Usage')} className="font-mono text-[10px] text-[#58baf0]">View usage →</button></div><div className="mt-5 flex items-end justify-between border-b border-[#303137] pb-5"><div><p className="font-mono text-[9px] uppercase text-[#777780]">Current usage</p><strong className="mt-2 block text-2xl">{formatUsd(billingData.currentUsage)}</strong></div><div className="text-right text-xs text-[#777780]">Estimate cycle total<strong className="mt-1 block font-mono text-[#e2e2e5]">{formatUsd(billingData.estimatedTotal)}</strong></div></div><ProjectUsage bars/></section><BudgetCard/></div><section className={card}><div className="flex items-center justify-between px-5 pt-5"><h2 className="text-sm font-semibold">Recent invoices</h2><button onClick={() => setTab('Invoices')} className="font-mono text-[10px] text-[#58baf0]">View all →</button></div><InvoiceRows compact/></section></div>;
+
+const Usage = () => <div className="space-y-4"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{[['Current usage',billingData.currentUsage,'So far this billing period'],['Estimated total',billingData.estimatedTotal,'At current usage pace'],['Monthly budget',billingData.monthlyBudget,'57% of budget used'],['Budget remaining',billingData.monthlyBudget-billingData.currentUsage,'Current spend, before estimate']].map(([label,value,detail]) => <article key={label} className={`${card} p-5`}><p className="font-mono text-[9px] uppercase tracking-[.1em] text-[#777780]">{label}</p><strong className="mt-3 block text-2xl">{formatUsd(value)}</strong><p className="mt-2 text-xs text-[#777780]">{detail}</p></article>)}</div><div className="grid gap-4 lg:grid-cols-[1.25fr_.85fr]"><section className={`${card} p-5`}><div className="flex justify-between"><div><h2 className="text-sm font-semibold">Daily usage</h2><p className="mt-3 text-xs text-[#777780]">Spend by day · current billing period</p></div><span className="font-mono text-[9px] text-[#777780]">Updated just now</span></div><div className="mt-7 flex h-48 items-end justify-around gap-3 border-b border-[#303137] pb-6">{billingData.dailyUsage.map((value,index) => <div key={index} className="flex h-full flex-1 flex-col items-center justify-end"><span className="mb-3 font-mono text-[8px] text-[#777780]">{formatUsd(value)}</span><div className="w-full max-w-10 rounded-t bg-[#4da5d3]" style={{ height: `${value / 1.7}px` }}/><span className="mt-2 font-mono text-[9px] text-[#777780]">{index + 1}</span></div>)}</div><p className="mt-3 text-right font-mono text-[9px] uppercase text-[#777780]">October · 2026</p></section><BudgetCard/></div><section className={`${card} p-5`}><div className="mb-3 flex justify-between"><h2 className="text-sm font-semibold">Usage by project</h2><span className="font-mono text-[9px] uppercase text-[#777780]">Current billing period</span></div><ProjectUsage/></section></div>;
+
+const Invoices = () => <section className={card}><div className="flex items-center justify-between px-5 pb-2 pt-5"><h2 className="text-sm font-semibold">Invoices</h2><span className="font-mono text-[9px] uppercase text-[#777780]">{billingData.invoices.length} total</span></div><InvoiceRows/></section>;
+
+export default function BillingPage(){
+  const { workspace = 'Spilight Inc' } = useOutletContext() || {};
+  const [tab,setTab] = useState('Overview');
+  return <div className="mx-auto max-w-[1440px]"><header><h1 className="text-2xl font-semibold tracking-[-.03em]">Billing</h1><p className="mt-1.5 text-sm text-[#777780]">{workspace} · costs, usage and invoices</p></header><div className="mb-5 mt-7 flex items-center justify-between gap-4"><div className="flex rounded-xl border border-[#303137] bg-[#151519] p-1">{tabs.map(item => <button key={item} onClick={() => setTab(item)} className={`rounded-lg px-4 py-2 text-xs transition ${tab===item?'bg-[#193348] font-semibold text-[#58baf0]':'text-[#85858e] hover:text-white'}`}>{item}</button>)}</div><span className="hidden font-mono text-[9px] uppercase tracking-[.1em] text-[#777780] sm:block">Sample data · October 2026</span></div>{tab==='Overview'?<Overview setTab={setTab}/>:tab==='Usage'?<Usage/>:<Invoices/>}</div>;
+}
