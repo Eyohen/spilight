@@ -1,86 +1,49 @@
-const team = [
-  { name: 'Henry D.', role: 'Owner', email: 'henry@acme.com' },
-  { name: 'Maya C.', role: 'Developer', email: 'maya@acme.com' },
-  { name: 'Ife A.', role: 'Billing', email: 'ife@acme.com' },
+import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+
+const regions = [
+  { id:'fra1', city:'Frankfurt', country:'Germany', flag:'🇩🇪', x:'42%', y:'43%' },
+  { id:'ams1', city:'Amsterdam', country:'Netherlands', flag:'🇳🇱', x:'39%', y:'36%' },
+  { id:'lhr1', city:'London', country:'United Kingdom', flag:'🇬🇧', x:'34%', y:'40%' },
+  { id:'iad1', city:'Virginia', country:'United States', flag:'🇺🇸', x:'22%', y:'48%' },
+  { id:'sfo1', city:'San Francisco', country:'United States', flag:'🇺🇸', x:'10%', y:'46%' },
+  { id:'sin1', city:'Singapore', country:'Singapore', flag:'🇸🇬', x:'77%', y:'61%' },
 ];
 
-const DashboardSettingsPage = () => {
-  return (
-    <div className="space-y-8">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-black/42">Settings</p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-black">Workspace settings</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-black/54">
-          Manage workspace identity, team access, billing preferences, and deployment guardrails.
-        </p>
-      </div>
+const initialTeam = [
+  { id:1, initials:'HD', name:'Henry D.', email:'henry@acme.com', role:'Owner' },
+  { id:2, initials:'MC', name:'Maya C.', email:'maya@acme.com', role:'Developer' },
+];
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
-        <section className="rounded-lg border border-black/10 bg-white p-5">
-          <h2 className="text-lg font-semibold tracking-[-0.03em]">Workspace profile</h2>
-          <form className="mt-6 grid gap-5">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-black/70">Workspace name</label>
-                <input className="h-11 w-full rounded-md border border-black/10 px-3 text-sm outline-none focus:border-black" defaultValue="Acme Production" />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-black/70">Default region</label>
-                <select className="h-11 w-full rounded-md border border-black/10 bg-white px-3 text-sm outline-none focus:border-black">
-                  <option>fra1 - Frankfurt</option>
-                  <option>iad1 - Ashburn</option>
-                  <option>lhr1 - London</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-black/70">Workspace slug</label>
-              <div className="flex h-11 overflow-hidden rounded-md border border-black/10 focus-within:border-black">
-                <input className="min-w-0 flex-1 px-3 text-sm outline-none" defaultValue="acme-production" />
-                <span className="flex items-center border-l border-black/10 px-3 text-sm text-black/40">.spilight.app</span>
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <button type="button" className="h-10 rounded-md bg-black px-4 text-sm font-bold text-white">Save changes</button>
-            </div>
-          </form>
-        </section>
+export default function DashboardSettingsPage(){
+  const { workspace='Acme Production' } = useOutletContext() || {};
+  const [workspaceName,setWorkspaceName] = useState(workspace);
+  const [slug,setSlug] = useState('acme-production');
+  const [region,setRegion] = useState('fra1');
+  const [team,setTeam] = useState(initialTeam);
+  const [inviteOpen,setInviteOpen] = useState(false);
+  const [inviteEmail,setInviteEmail] = useState('');
+  const [inviteRole,setInviteRole] = useState('Developer');
+  const [removeMember,setRemoveMember] = useState(null);
+  const [deleteOpen,setDeleteOpen] = useState(false);
+  const [deleteConfirmation,setDeleteConfirmation] = useState('');
+  const [saved,setSaved] = useState(false);
+  const selectedRegion = regions.find(item => item.id===region) || regions[0];
+  const save = event => { event.preventDefault(); setSaved(true); setTimeout(() => setSaved(false),1800); };
+  const invite = event => { event.preventDefault(); if(!inviteEmail.trim())return; const name=inviteEmail.split('@')[0]; setTeam(current=>[...current,{id:Date.now(),initials:name.slice(0,2).toUpperCase(),name,email:inviteEmail,role:inviteRole}]); setInviteEmail(''); setInviteRole('Developer'); setInviteOpen(false); };
 
-        <section className="rounded-lg border border-black/10 bg-white p-5">
-          <h2 className="text-lg font-semibold tracking-[-0.03em]">Deployment policy</h2>
-          <div className="mt-6 space-y-4">
-            {['Require health checks before promotion', 'Allow automatic rollback on failed release', 'Protect production environment'].map((item) => (
-              <label key={item} className="flex items-center justify-between gap-4 rounded-md border border-black/10 p-4 text-sm">
-                <span>{item}</span>
-                <input type="checkbox" defaultChecked className="h-4 w-4" />
-              </label>
-            ))}
-          </div>
-        </section>
-      </div>
+  return <div className="settings-page mx-auto max-w-[980px]">
+    <header><h1 className="text-2xl font-semibold tracking-[-.03em]">Workspace settings</h1><p className="mt-1.5 max-w-xl text-sm text-[#777780]">Manage your workspace profile, who has access to it, and what happens if you leave or delete it.</p></header>
 
-      <section className="rounded-lg border border-black/10 bg-white">
-        <div className="flex items-center justify-between border-b border-black/10 p-5">
-          <div>
-            <h2 className="text-lg font-semibold tracking-[-0.03em]">Team access</h2>
-            <p className="mt-1 text-sm text-black/46">Manage roles and access to production resources</p>
-          </div>
-          <button className="h-10 rounded-md border border-black/10 px-4 text-sm font-bold hover:bg-black hover:text-white">Invite member</button>
-        </div>
-        <div className="divide-y divide-black/10">
-          {team.map((member) => (
-            <div key={member.email} className="flex flex-col justify-between gap-3 p-5 sm:flex-row sm:items-center">
-              <div>
-                <p className="font-medium">{member.name}</p>
-                <p className="mt-1 text-sm text-black/48">{member.email}</p>
-              </div>
-              <span className="w-fit rounded-full border border-black/10 px-3 py-1 text-xs font-bold">{member.role}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-};
+    <section className="mt-7 rounded-2xl border border-[#303137] bg-[#151519] p-5 sm:p-7"><div><h2 className="text-sm font-semibold">Workspace profile</h2><p className="mt-1 text-xs text-[#777780]">These details identify the workspace for everyone on your team.</p></div><form onSubmit={save} className="mt-6"><div className="grid gap-5 sm:grid-cols-2"><label className="text-xs font-semibold">Workspace name<input value={workspaceName} onChange={event=>setWorkspaceName(event.target.value)} className="mt-2 h-11 w-full rounded-lg border border-[#34353b] bg-[#1b1b20] px-3 text-sm outline-none focus:border-[#4c8dff]"/></label><label className="text-xs font-semibold">Workspace slug<div className="mt-2 flex h-11 overflow-hidden rounded-lg border border-[#34353b] bg-[#1b1b20] focus-within:border-[#4c8dff]"><input value={slug} onChange={event=>setSlug(event.target.value)} className="min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"/><span className="flex items-center border-l border-[#34353b] px-3 text-xs text-[#777780]">.spilight.app</span></div><span className="mt-2 block text-[10px] font-normal text-[#696972]">Your workspace address is {slug}.spilight.app.</span></label></div>
 
-export default DashboardSettingsPage;
+      <fieldset className="mt-6"><legend className="text-xs font-semibold">Default region</legend><div className="relative mt-3 h-60 overflow-hidden rounded-xl border border-[#303137] bg-[#17171b]" style={{backgroundImage:'radial-gradient(circle, rgba(137,144,164,.5) 1.7px, transparent 2px)',backgroundSize:'13px 13px'}}><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_25%,#17171b_78%)]"/><button type="button" className="absolute right-3 top-3 rounded-md border border-[#35363c] bg-[#202024] px-2.5 py-1.5 text-[10px]">Show all regions</button>{regions.map(item=><button type="button" key={item.id} onClick={()=>setRegion(item.id)} aria-label={`${item.city}, ${item.country}`} className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-md p-1 text-lg transition ${region===item.id?'scale-125 bg-[#4c8dff]/25 ring-2 ring-[#4c8dff]':'hover:scale-110'}`} style={{left:item.x,top:item.y}}>{item.flag}</button>)}<div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-lg border border-[#35363c] bg-[#202024] px-3 py-2 shadow-xl"><span className="text-xl">{selectedRegion.flag}</span><span><strong className="block text-xs">{selectedRegion.city}, {selectedRegion.country}</strong><span className="font-mono text-[9px] text-[#777780]">{selectedRegion.id}</span></span></div></div><div className="mt-3 grid gap-2 sm:grid-cols-3">{regions.map(item=><button type="button" key={item.id} onClick={()=>setRegion(item.id)} className={`flex items-center gap-2 rounded-lg border p-3 text-left transition ${region===item.id?'border-[#4c8dff] bg-[#172a4a] ring-1 ring-[#4c8dff]':'border-[#303137] hover:border-[#484950]'}`}><span className="text-lg">{item.flag}</span><span className="min-w-0 flex-1"><strong className="block truncate text-xs">{item.city}</strong><span className="block truncate text-[9px] text-[#777780]">{item.country}</span></span><span className="font-mono text-[9px] text-[#777780]">{item.id}</span></button>)}</div><p className="mt-3 text-[10px] text-[#696972]">New services in this workspace start in this region. Pick a region from the list or click a flag on the map.</p></fieldset><div className="mt-6 flex items-center justify-end gap-3">{saved&&<span className="text-xs text-[#3dcc87]">✓ Changes saved</span>}<button className="rounded-lg bg-[#4c8dff] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#6aa1ff]">Save changes</button></div></form></section>
+
+    <section className="mt-5 overflow-hidden rounded-2xl border border-[#303137] bg-[#151519]"><div className="flex items-center justify-between border-b border-[#303137] p-5 sm:px-7"><div><h2 className="text-sm font-semibold">Team access</h2><p className="mt-1 text-xs text-[#777780]">Manage roles and access to production resources.</p></div><button onClick={()=>setInviteOpen(value=>!value)} className="rounded-lg border border-[#35363c] px-3 py-2 text-xs font-semibold hover:bg-white/[.04]">Invite member</button></div>{inviteOpen&&<form onSubmit={invite} className="grid gap-3 border-b border-[#303137] bg-[#181c27] p-5 sm:grid-cols-[minmax(0,1fr)_150px_auto_auto] sm:items-end sm:px-7"><label className="text-xs font-semibold">Email address<input autoFocus type="email" required value={inviteEmail} onChange={event=>setInviteEmail(event.target.value)} placeholder="name@company.com" className="mt-2 h-11 w-full rounded-lg border border-[#34353b] bg-[#1b1b20] px-3 text-sm outline-none focus:border-[#4c8dff]"/></label><label className="text-xs font-semibold">Role<select value={inviteRole} onChange={event=>setInviteRole(event.target.value)} className="mt-2 h-11 w-full rounded-lg border border-[#34353b] bg-[#1b1b20] px-3 text-sm"><option>Developer</option><option>Billing</option><option>Viewer</option></select></label><button className="h-11 rounded-lg bg-[#4c8dff] px-4 text-xs font-semibold text-white">Send invite</button><button type="button" onClick={()=>setInviteOpen(false)} className="h-11 rounded-lg border border-[#35363c] px-4 text-xs font-semibold">Cancel</button></form>}<div>{team.map(member=><div key={member.id} className="flex items-center gap-3 border-b border-[#292a30] px-5 py-4 last:border-0 sm:px-7"><span className="grid h-9 w-9 place-items-center rounded-full bg-[#202840] text-[10px] font-semibold text-[#83a0ff]">{member.initials}</span><div className="min-w-0 flex-1"><p className="text-sm font-semibold">{member.name}{member.role==='Owner'&&<span className="ml-1 text-[10px] font-normal text-[#777780]">You</span>}</p><p className="truncate text-xs text-[#777780]">{member.email}</p></div>{member.role==='Owner'?<span className="rounded-full border border-[#35363c] px-3 py-1 text-[10px]">Owner</span>:<><select value={member.role} onChange={event=>setTeam(current=>current.map(item=>item.id===member.id?{...item,role:event.target.value}:item))} className="rounded-lg border border-[#35363c] bg-[#1b1b20] px-3 py-2 text-xs"><option>Developer</option><option>Billing</option><option>Viewer</option></select><button onClick={()=>setRemoveMember(member)} className="hidden text-[10px] text-[#777780] hover:text-[#ef6262] sm:block">Remove</button></>}</div>)}</div></section>
+
+    <section className="mt-5 overflow-hidden rounded-2xl border border-[#63343a] bg-[#171416]"><div className="border-b border-[#63343a] px-5 py-4 sm:px-7"><h2 className="text-sm font-semibold text-[#ef7379]">Danger zone</h2><p className="mt-1 text-xs text-[#9c6a6e]">These actions affect your access or the whole workspace.</p></div><div className="flex flex-col justify-between gap-4 border-b border-[#4b2b30] px-5 py-5 last:border-0 sm:flex-row sm:items-center sm:px-7"><div><h3 className="text-sm font-semibold">Leave workspace</h3><p className="mt-1 max-w-xl text-xs text-[#8b7779]">Leaving means you lose access to all the workspace&apos;s projects unless an admin invites you again.</p></div><button className="self-start rounded-lg border border-[#743b42] px-4 py-2.5 text-xs font-semibold text-[#ef858b]">Leave workspace</button></div><div className="flex flex-col justify-between gap-4 px-5 py-5 sm:flex-row sm:items-center sm:px-7"><div><h3 className="text-sm font-semibold">Delete workspace</h3><p className="mt-1 max-w-xl text-xs text-[#8b7779]">Permanently delete this workspace, its projects and their data for every member. This can&apos;t be undone.</p></div><button onClick={()=>{setDeleteConfirmation('');setDeleteOpen(true)}} className="self-start rounded-lg bg-[#bd343c] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#d13d46]">Delete workspace</button></div></section>
+
+    {removeMember&&<div className="fixed inset-0 z-[80] grid place-items-center bg-black/65 p-4" onMouseDown={()=>setRemoveMember(null)}><section onMouseDown={event=>event.stopPropagation()} className="w-full max-w-md rounded-2xl border border-[#34353b] bg-[#18181d] p-6 shadow-2xl"><h2 className="text-lg font-semibold">Remove {removeMember.name}?</h2><p className="mt-3 text-sm text-[#777780]"><strong className="text-current">{removeMember.name}</strong> will lose access to all projects in this workspace.</p><div className="mt-7 flex justify-end gap-2"><button onClick={()=>setRemoveMember(null)} className="rounded-lg border border-[#35363c] px-4 py-2.5 text-xs font-semibold">Cancel</button><button onClick={()=>{setTeam(current=>current.filter(item=>item.id!==removeMember.id));setRemoveMember(null)}} className="rounded-lg bg-[#bd343c] px-4 py-2.5 text-xs font-semibold text-white">Remove member</button></div></section></div>}
+    {deleteOpen&&<div className="fixed inset-0 z-[80] grid place-items-center bg-black/65 p-4" onMouseDown={()=>setDeleteOpen(false)}><section onMouseDown={event=>event.stopPropagation()} className="w-full max-w-lg rounded-2xl border border-[#34353b] bg-[#18181d] p-6 shadow-2xl"><h2 className="text-xl font-semibold">Delete {workspaceName}?</h2><p className="mt-3 text-sm leading-6 text-[#777780]">This permanently deletes the workspace, all of its projects and their data for every member. <strong className="text-current">This can&apos;t be undone.</strong></p><label className="mt-5 block text-xs font-semibold">Type <strong>{slug}</strong> to confirm<input autoFocus value={deleteConfirmation} onChange={event=>setDeleteConfirmation(event.target.value)} className="mt-2 h-11 w-full rounded-lg border border-[#4c8dff] bg-[#1b1b20] px-3 text-sm outline-none ring-2 ring-[#4c8dff]/25"/></label><div className="mt-6 flex justify-end gap-2"><button onClick={()=>setDeleteOpen(false)} className="rounded-lg border border-[#35363c] px-4 py-2.5 text-xs font-semibold">Cancel</button><button disabled={deleteConfirmation!==slug} className="rounded-lg bg-[#bd343c] px-4 py-2.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">Delete workspace</button></div></section></div>}
+  </div>;
+}

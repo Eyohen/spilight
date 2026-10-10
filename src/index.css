@@ -41,6 +41,25 @@
 .dashboard-light [class*="text-[#f4f4f5]"] { color: #17181c !important; }
 .dashboard-light input,
 .dashboard-light select { color: #17181c; }
+.dashboard-light .usage-page .usage-panel { background: #fff !important; border-color: #dfe3ea !important; }
+.dashboard-light .usage-page .usage-project.border-\[\#6079e8\] { background: #eef2ff !important; }
+.dashboard-light .usage-page [class*="bg-[#202840]"] { background: #e9eeff !important; }
+.dashboard-light .usage-page [class*="bg-[#202024]"] { background: #f1f3f7 !important; }
+.dashboard-light .usage-page [class*="bg-[#303137]"] { background: #fff !important; }
+.dashboard-light .usage-page [class*="border-[#303137]"],
+.dashboard-light .usage-page [class*="border-[#292a30]"],
+.dashboard-light .usage-page [class*="border-[#34353b]"] { border-color: #e1e5ec !important; }
+.dashboard-light .settings-page [class*="bg-[#1b1b20]"],
+.dashboard-light .settings-page [class*="bg-[#171416]"] { background: #fff !important; }
+.dashboard-light .settings-page [class*="bg-[#181c27]"] { background: #f0f3f9 !important; }
+.dashboard-light .settings-page [class*="radial-gradient(ellipse_at_center"] {
+  background-image: radial-gradient(ellipse at center, transparent 25%, #fff 78%) !important;
+}
+.dashboard-light .settings-page [class*="bg-[#172a4a]"] { background: #eef2ff !important; }
+.dashboard-light .settings-page [class*="bg-[#202840]"] { background: #eef2ff !important; }
+.dashboard-light .settings-page [class*="border-[#63343a]"] { border-color: #e9a8ad !important; }
+.dashboard-light .settings-page [class*="border-[#4b2b30]"] { border-color: #f0c7ca !important; }
+.dashboard-light .settings-page [class*="text-[#8b7779]"] { color: #795f62 !important; }
 
 @layer base {
   html {

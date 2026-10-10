@@ -12,6 +12,7 @@ const navItems = [
   ['Servers','/dashboard/servers',<Icon><path d="M5 6h14v4H5zM5 14h14v4H5zM8 8h.01M8 16h.01" /></Icon>],
   ['Databases','/dashboard/database',<Icon><path d="M6 6.5c0-1.4 12-1.4 12 0v11c0 1.4-12 1.4-12 0zM6 10c0 1.4 12 1.4 12 0M6 14c0 1.4 12 1.4 12 0" /></Icon>],
   ['Deployments','/dashboard/deployments',<Icon><path d="M12 19V5M7.5 9.5 12 5l4.5 4.5" /></Icon>],
+  ['Usage','/dashboard/usage',<Icon><path d="M5 19V9M12 19V5M19 19v-7"/><path d="M3 19h18"/></Icon>],
   ['Billing','/dashboard/billing',<Icon><path d="M8 7h8M8 12h8M10 17h4M12 4v16" /></Icon>],
   ['Settings','/dashboard/settings',<Icon><circle cx="12" cy="12" r="3" /><path d="M19 12a7 7 0 0 0-.1-1.3l2-1.5-2-3.5-2.5 1A7 7 0 0 0 14.2 5L14 2h-4l-.2 3a7 7 0 0 0-2.2 1.7l-2.5-1-2 3.5 2 1.5A7 7 0 0 0 5 12c0 .4 0 .9.1 1.3l-2 1.5 2 3.5 2.5-1A7 7 0 0 0 9.8 19l.2 3h4l.2-3a7 7 0 0 0 2.2-1.7l2.5 1 2-3.5-2-1.5c.1-.4.1-.9.1-1.3Z" /></Icon>],
 ];

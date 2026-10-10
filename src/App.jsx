@@ -18,6 +18,7 @@ import DatabasePage from './pages/dashboard/DatabasePage'
 import DeploymentsPage from './pages/dashboard/DeploymentsPage'
 import DeploymentDetailPage from './pages/dashboard/DeploymentDetailPage'
 import MetricsPage from './pages/dashboard/MetricsPage'
+import UsagePage from './pages/dashboard/UsagePage'
 import BillingPage from './pages/dashboard/BillingPage'
 import InvoiceDetailPage from './pages/dashboard/InvoiceDetailPage'
 import ReceiptsPage from './pages/dashboard/ReceiptsPage'
@@ -47,6 +48,7 @@ function App() {
         <Route path="deployments" element={<DeploymentsPage />} />
         <Route path="deployments/:id" element={<DeploymentDetailPage />} />
         <Route path="metrics" element={<MetricsPage />} />
+        <Route path="usage" element={<UsagePage />} />
         <Route path="billing" element={<BillingPage />} />
         <Route path="billing/invoices/:id" element={<InvoiceDetailPage />} />
         <Route path="billing/receipts" element={<ReceiptsPage />} />
